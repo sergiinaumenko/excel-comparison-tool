@@ -7,7 +7,12 @@ import ua.kh.excel.comparison.tool.prowider.CellProvider;
 import ua.kh.excel.comparison.tool.prowider.CellProviderFactory;
 import ua.kh.excel.comparison.tool.prowider.RowTitleProvider;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+
 
 public class SequentCellProviderFactory implements CellProviderFactory {
 
