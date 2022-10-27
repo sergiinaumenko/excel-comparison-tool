@@ -15,7 +15,9 @@ import java.util.Spliterator;
 import java.util.stream.StreamSupport;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 public class KeyColumnRowProvider implements RowProvider {
 
