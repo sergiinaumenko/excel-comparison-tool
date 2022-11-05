@@ -58,7 +58,7 @@ public class ConsoleToolExcelUtils {
 
     public static void saveReport(ConsoleHelper consoleHelper, File directory, Workbook report) {
         File file = new File(directory,
-                "compare_report" + System.currentTimeMillis() + ExcelUtils.EXCEL_EXTENSION);
+                "compare_report" + System.currentTimeMillis() + ExcelUtils.DEFAULT_REPORT_EXTENSION);
         try (FileOutputStream os = new FileOutputStream(file)) {
             report.write(os);
             consoleHelper.printlnInfo("Generated report: " + file.getPath());

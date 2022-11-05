@@ -3,6 +3,8 @@ package ua.kh.excel.utils;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.FileMagic;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -11,8 +13,11 @@ import org.apache.poi.ss.usermodel.FormulaError;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.NumberToTextConverter;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,9 +32,23 @@ import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 @UtilityClass
 public class ExcelUtils {
 
-    public static final List EXCEL_EXTENSION = List.of(".xlsx", ".xls");
+    private static final List<String> EXCEL_EXTENSION = List.of(".xlsx", ".xls");
+
+    public static final String DEFAULT_REPORT_EXTENSION = ".xlsx";
 
     private static final DataFormatter DATA_FORMATTER = new DataFormatter();
+
+    public Workbook determineExcelWorkBookRepresentation(File file) {
+        try (FileInputStream stream = new FileInputStream(file)) {
+            InputStream is = FileMagic.prepareToCheckMagic(stream);
+            if (FileMagic.valueOf(is) == FileMagic.OLE2) {
+                return new HSSFWorkbook(is);
+            }
+            return new XSSFWorkbook(is);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Unfortunately this type of file is not supported");
+        }
+    }
 
     public static String getCellValueAsString(Cell cell) {
         if (Objects.isNull(cell)) {
