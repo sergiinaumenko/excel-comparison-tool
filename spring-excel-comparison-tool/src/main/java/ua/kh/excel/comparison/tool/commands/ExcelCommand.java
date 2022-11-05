@@ -1,10 +1,8 @@
 package ua.kh.excel.comparison.tool.commands;
 
 import org.apache.commons.math3.util.Pair;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -21,9 +19,9 @@ import ua.kh.excel.provider.impl.KeyColumnRowProvider;
 import ua.kh.excel.provider.impl.SequentCellProviderFactory;
 import ua.kh.excel.provider.impl.SequentRowProvider;
 import ua.kh.excel.service.ExcelService;
+import ua.kh.excel.utils.ExcelUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 
 @ShellComponent
@@ -79,10 +77,11 @@ public class ExcelCommand {
         LoadingBur loadBar = helper.getLoadingBar("Loading workbooks");
         loadBar.display();
         // TODO: Need create a utility method for providing correct WorkBook implementation to support different types
-        try (Workbook firstWorkbook = new XSSFWorkbook(files.getFirst());
-             Workbook secondWorkbook = new XSSFWorkbook(files.getSecond())) {
+        try {
+            Workbook firstWorkbook = ExcelUtils.determineExcelWorkBookRepresentation(files.getFirst());
+            Workbook secondWorkbook = ExcelUtils.determineExcelWorkBookRepresentation(files.getSecond());
             return Optional.of(Pair.create(firstWorkbook, secondWorkbook));
-        } catch (InvalidFormatException | IOException e) {
+        } catch (Exception e) {
             loadBar.stop();
             helper.printlnError(e.getLocalizedMessage());
         } finally {
