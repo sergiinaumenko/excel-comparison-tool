@@ -50,8 +50,8 @@ public class ExcelCommand {
         }
         Pair<Sheet, Sheet> sheets = selectedSheets.get();
         FileNameRowTitleProvider titleProvider = new FileNameRowTitleProvider(
-                ConsoleToolExcelUtils.getFileNameWitOutExtension(files.get().getFirst()),
-                ConsoleToolExcelUtils.getFileNameWitOutExtension(files.get().getSecond()));
+                ExcelUtils.getFileNameWitOutExtension(files.get().getFirst()),
+                ExcelUtils.getFileNameWitOutExtension(files.get().getSecond()));
         CellProviderFactory cellProvider = selectCellProvider(sheets, titleProvider);
         RowProvider rowProvider = selectRowProvider(sheets, cellProvider);
 
@@ -76,7 +76,6 @@ public class ExcelCommand {
     private Optional<Pair<Workbook, Workbook>> loadWorkbooks(Pair<File, File> files) {
         LoadingBur loadBar = helper.getLoadingBar("Loading workbooks");
         loadBar.display();
-        // TODO: Need create a utility method for providing correct WorkBook implementation to support different types
         try {
             Workbook firstWorkbook = ExcelUtils.determineExcelWorkBookRepresentation(files.getFirst());
             Workbook secondWorkbook = ExcelUtils.determineExcelWorkBookRepresentation(files.getSecond());

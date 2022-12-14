@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.effect.Blend?>
+<?import javafx.scene.effect.ColorInput?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane hgap="5.0" prefHeight="613.0" prefWidth="558.0" style="-fx-background-color: linear-gradient(to bottom, #fcf8e3 0px, #f8efc0 100%);" vgap="5.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ua.kh.excel.comparison.desktop.controller.ExcelComparisonToolController">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="45.0" prefHeight="45.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="406.79999999999995" minHeight="10.0" prefHeight="294.1999877929687" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="122.20001831054685" minHeight="0.0" prefHeight="56.79996337890623" valignment="CENTER" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="40.0" minHeight="10.0" prefHeight="40.0" valignment="CENTER" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <GridPane hgap="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="322.0" prefWidth="560.0" vgap="10.0" GridPane.rowIndex="1">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0" prefWidth="250.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="260.0" minWidth="10.0" prefWidth="250.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="30.0" percentHeight="5.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+        </rowConstraints>
+         <children>
+            <Label text="Version 1" underline="true">
+               <font>
+                  <Font name="System Bold" />
+               </font>
+               <styleClass>
+                  <String fx:value="lbl-info" />
+                  <String fx:value="h3" />
+               </styleClass>
+            </Label>
+            <Label text="Version 2" underline="true" GridPane.columnIndex="1">
+               <font>
+                  <Font name="System Bold" />
+               </font>
+               <styleClass>
+                  <String fx:value="lbl-success" />
+                  <String fx:value="h3" />
+               </styleClass>
+            </Label>
+            <GridPane hgap="3.0" prefHeight="271.0" prefWidth="192.0" styleClass="active" vgap="3.0" GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="185.0" minWidth="10.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="10.0" prefWidth="65.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Select File to compare" />
+                  <TextField fx:id="filePathVersion1" editable="false" promptText="Choose file" GridPane.rowIndex="1" />
+                  <Button fx:id="browseFileVersion1" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#onchoosefileversion1Click" prefHeight="26.0" prefWidth="70.0" styleClass="btn-info" text="Browse.." GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <padding>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </padding>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <GridPane.margin>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </GridPane.margin>
+                  </Button>
+                  <Label prefWidth="207.0" text="Sheet name to compare" GridPane.rowIndex="2" />
+                  <Label text="Is first line a header?" GridPane.rowIndex="4" />
+                  <RadioButton disable="true" mnemonicParsing="false" text="Yes" GridPane.rowIndex="5">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="isFirstLineHeaderVersion1" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton disable="true" mnemonicParsing="false" text="No" toggleGroup="$isFirstLineHeaderVersion1" GridPane.rowIndex="6" />
+                  <Label text="Select key column" GridPane.rowIndex="7" />
+                  <ChoiceBox fx:id="workBookAvailableSheetsVersion1" disable="true" prefHeight="26.0" prefWidth="184.0" GridPane.rowIndex="3" />
+                  <ChoiceBox fx:id="columnNameToCompareV1" disable="true" prefHeight="26.0" prefWidth="182.0" GridPane.rowIndex="8" />
+               </children>
+            </GridPane>
+            <GridPane hgap="3.0" layoutX="25.0" layoutY="62.0" prefHeight="274.0" prefWidth="331.0" vgap="3.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="185.0" minWidth="10.0" prefWidth="150.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="75.0" minWidth="10.0" prefWidth="65.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label text="Select File to compare" />
+                  <TextField fx:id="filePathVersion2" editable="false" promptText="Choose file" GridPane.rowIndex="1" />
+                  <Button fx:id="browseFileVersion2" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#onchoosefileversion2Click" prefHeight="24.0" prefWidth="70.0" styleClass="btn-info" text="Browse.." GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <padding>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </padding>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <GridPane.margin>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </GridPane.margin>
+                  </Button>
+                  <Label prefWidth="207.0" text="Sheet name to compare" GridPane.rowIndex="2" />
+                  <Label text="Is first line a header?" GridPane.rowIndex="4" />
+                  <RadioButton disable="true" mnemonicParsing="false" text="Yes" GridPane.rowIndex="5">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="isFirstLineHeaderVersion2" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton disable="true" mnemonicParsing="false" text="No" toggleGroup="$isFirstLineHeaderVersion2" GridPane.rowIndex="6" />
+                  <Label text="Select key column" GridPane.rowIndex="7" />
+                  <ChoiceBox fx:id="workBookAvailableSheetsVersion2" disable="true" prefHeight="26.0" prefWidth="182.0" GridPane.rowIndex="3" />
+                  <ChoiceBox fx:id="columnNameToCompareV2" disable="true" prefHeight="26.0" prefWidth="182.0" GridPane.rowIndex="8" />
+               </children>
+            </GridPane>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </GridPane>
+      <GridPane hgap="10.0" prefHeight="83.0" prefWidth="558.0" vgap="10.0" GridPane.rowIndex="2">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Specify path to store the report" />
+            <GridPane hgap="3.0" prefHeight="23.0" prefWidth="259.0" vgap="3.0" GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="186.79998779296875" minWidth="10.0" prefWidth="182.79998779296875" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="125.20001220703125" minWidth="10.0" prefWidth="77.20001220703125" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button fx:id="browseDirectoryPath" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#selectReportDirectory" prefHeight="26.0" prefWidth="70.0" styleClass="btn-info" text="Browse.." GridPane.columnIndex="1">
+                     <padding>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </padding>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <TextField fx:id="reportDirectoryPath" editable="false" promptText="Select folder" />
+               </children>
+            </GridPane>
+         </children>
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </GridPane>
+      <Button fx:id="generateReportBttn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onMouseClicked="#generateReport" styleClass="btn-success" text="Generate Report" textOverrun="CLIP" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
+      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="296.0" text="Implemented by Sierhii Riezvan and Sierhii Naumenko" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+         <effect>
+            <Blend>
+               <topInput>
+                  <ColorInput />
+               </topInput>
+            </Blend>
+         </effect>
+         <font>
+            <Font name="Comic Sans MS" size="12.0" />
+         </font>
+      </Label>
+      <Label prefHeight="54.0" prefWidth="350.0" text="Excel Compare Tool" textFill="#168e30de" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+         <font>
+            <Font name="System Bold Italic" size="36.0" />
+         </font>
+      </Label>
+   </children>
+</GridPane>
