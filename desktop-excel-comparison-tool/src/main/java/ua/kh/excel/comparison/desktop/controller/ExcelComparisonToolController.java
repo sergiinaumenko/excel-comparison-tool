@@ -4,26 +4,23 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import org.apache.commons.math3.util.Pair;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import ua.kh.excel.comparison.desktop.exception.SaveReportException;
+import ua.kh.excel.comparison.desktop.task.GenerateReportTask;
+import ua.kh.excel.comparison.desktop.task.ReadDocumentTask;
 import ua.kh.excel.comparison.desktop.utils.CellChoiceBoxModel;
 import ua.kh.excel.comparison.desktop.utils.ExcelDesktopUtils;
 import ua.kh.excel.comparison.desktop.utils.JFXUtils;
 import ua.kh.excel.comparison.desktop.utils.ValidationUtils;
-import ua.kh.excel.provider.CellProviderFactory;
-import ua.kh.excel.provider.RowProvider;
-import ua.kh.excel.provider.impl.FileNameRowTitleProvider;
-import ua.kh.excel.provider.impl.HeaderCellProviderFactory;
-import ua.kh.excel.provider.impl.KeyColumnRowProvider;
-import ua.kh.excel.provider.impl.SequentCellProviderFactory;
-import ua.kh.excel.provider.impl.SequentRowProvider;
 import ua.kh.excel.service.ExcelService;
 import ua.kh.excel.utils.ExcelUtils;
 
@@ -42,7 +39,6 @@ public class ExcelComparisonToolController {
             new FileChooser.ExtensionFilter("All Files", "*.*"),
             new FileChooser.ExtensionFilter("XLSX", "*.xlsx"),
             new FileChooser.ExtensionFilter("XLX", "*.xls"));
-    private final ExcelService excelService;
     private final FileChooser excelFileChooser;
     @FXML
     private TextField filePathVersion1;
@@ -71,12 +67,27 @@ public class ExcelComparisonToolController {
     @FXML
     private TextField reportDirectoryPath;
 
+    @FXML
+    private StackPane rootElement;
+
+    @FXML
+    private ProgressIndicator progressIndicator;
+
     public ExcelComparisonToolController() {
-        this.excelService = new ExcelService();
         excelFileChooser = new FileChooser();
         excelFileChooser.getExtensionFilters().addAll(ACCEPTED_FILES);
         excelFileChooser.setTitle("Choose a spreadsheet to compare");
         excelFileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+    }
+
+    private static void updateAvailableSheets(ChoiceBox<Sheet> sheetChoiceBox, Workbook workbook) {
+        List<Sheet> availableSheets = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(workbook.sheetIterator(), Spliterator.ORDERED), false)
+                .filter(ExcelUtils::isSheetVisible)
+                .collect(Collectors.toList());
+        sheetChoiceBox.setItems(FXCollections.observableList(availableSheets));
+        sheetChoiceBox.setConverter(ExcelDesktopUtils.CHOICE_BOX_SHEET_CONVERTER);
+        sheetChoiceBox.setDisable(false);
     }
 
     @FXML
@@ -85,51 +96,62 @@ public class ExcelComparisonToolController {
         if (Objects.isNull(workbookFileVersion1)) {
             return;
         }
-        if (applyUpdatesForProvidedSpreadsheet(filePathVersion1, workbookFileVersion1, workBookAvailableSheetsVersion1)) {
-            workBookAvailableSheetsVersion1.setOnAction(event -> sheetV1Selected());
-            cleanUpSheetSettings(isFirstLineHeaderVersion1, columnNameToCompareV1);
-        }
-    }
+        rootElement.setDisable(true);
+        ReadDocumentTask task = new ReadDocumentTask(workbookFileVersion1);
 
-    @FXML
-    protected void onchoosefileversion2Click() {
-        workbookFileVersion2 = excelFileChooser.showOpenDialog(null);
-        if (Objects.isNull(workbookFileVersion2)) {
-            return;
-        }
-        if (applyUpdatesForProvidedSpreadsheet(filePathVersion2, workbookFileVersion2, workBookAvailableSheetsVersion2)) {
-            workBookAvailableSheetsVersion2.setOnAction(event -> sheetV2Selected());
-            cleanUpSheetSettings(isFirstLineHeaderVersion2, columnNameToCompareV2);
-        }
-    }
-
-    private boolean applyUpdatesForProvidedSpreadsheet(TextField textField, File spreadsheet, ChoiceBox<Sheet> sheetChoiceBox) {
-        try {
-            textField.setText(spreadsheet.getAbsolutePath());
-            Workbook workbook = ExcelUtils.determineExcelWorkBookRepresentation(spreadsheet);
-            List<Sheet> availableSheets = StreamSupport.stream(
-                            Spliterators.spliteratorUnknownSize(workbook.sheetIterator(), Spliterator.ORDERED), false)
-                    .filter(ExcelUtils::isSheetVisible)
-                    .collect(Collectors.toList());
-            sheetChoiceBox.setItems(FXCollections.observableList(availableSheets));
-            sheetChoiceBox.setConverter(ExcelDesktopUtils.CHOICE_BOX_SHEET_CONVERTER);
-            sheetChoiceBox.setDisable(false);
-            return true;
-        } catch (Exception ex) {
+        progressIndicator.visibleProperty().bind(task.runningProperty());
+        task.setOnFailed(workerStateEvent -> {
             JFXUtils.createAlert(Alert.AlertType.ERROR,
                             "Unable to open provided spreadsheet",
                             "alert-danger")
                     .show();
-            return false;
+            rootElement.setDisable(false);
+        });
+
+        task.setOnSucceeded(workerStateEvent -> {
+            filePathVersion1.setText(workbookFileVersion1.getAbsolutePath());
+            Workbook workbook = task.getValue();
+            updateAvailableSheets(workBookAvailableSheetsVersion1, workbook);
+            workBookAvailableSheetsVersion1.setOnAction(event -> sheetV1Selected());
+            cleanUpSheetSettings(isFirstLineHeaderVersion1, columnNameToCompareV1);
+            rootElement.setDisable(false);
+        });
+        new Thread(task).start();
+    }
+
+    @FXML
+    protected void onchoosefileversion2Click() {
+        rootElement.setDisable(true);
+        workbookFileVersion2 = excelFileChooser.showOpenDialog(null);
+        if (Objects.isNull(workbookFileVersion2)) {
+            return;
         }
+        ReadDocumentTask task = new ReadDocumentTask(workbookFileVersion2);
+        progressIndicator.visibleProperty().bind(task.runningProperty());
+        task.setOnFailed(workerStateEvent -> {
+            JFXUtils.createAlert(Alert.AlertType.ERROR,
+                            "Unable to open provided spreadsheet",
+                            "alert-danger")
+                    .show();
+            rootElement.setDisable(false);
+        });
+
+        task.setOnSucceeded(workerStateEvent -> {
+            filePathVersion2.setText(workbookFileVersion2.getAbsolutePath());
+            Workbook workbook = task.getValue();
+            updateAvailableSheets(workBookAvailableSheetsVersion2, workbook);
+            workBookAvailableSheetsVersion2.setOnAction(event -> sheetV2Selected());
+            cleanUpSheetSettings(isFirstLineHeaderVersion2, columnNameToCompareV2);
+            rootElement.setDisable(false);
+        });
+        new Thread(task).start();
     }
 
     private void sheetV1Selected() {
         Sheet selectedItem = workBookAvailableSheetsVersion1.getSelectionModel().getSelectedItem();
-        if (Objects.nonNull(selectedItem)) {
+        if (Objects.nonNull(selectedItem) && updateSettingsAfterSelectedSheet(selectedItem, columnNameToCompareV1)) {
             isFirstLineHeaderVersion1.getToggles().stream().map(item -> (RadioButton) item)
                     .forEach(item -> item.setDisable(false));
-            updateSettingsAfterSelectedSheet(selectedItem, columnNameToCompareV1);
         }
     }
 
@@ -140,7 +162,15 @@ public class ExcelComparisonToolController {
         cellChoiceBoxSetting.getItems().clear();
     }
 
-    private void updateSettingsAfterSelectedSheet(Sheet selectedSheet, ChoiceBox<CellChoiceBoxModel> cellChoiceBoxSetting) {
+    private boolean updateSettingsAfterSelectedSheet(Sheet selectedSheet, ChoiceBox<CellChoiceBoxModel> cellChoiceBoxSetting) {
+        if (selectedSheet.getLastRowNum() < 0) {
+            JFXUtils.createAlert(Alert.AlertType.ERROR,
+                            "Selected sheet does not contain data. Please choose another sheet.",
+                            "alert-danger")
+                    .show();
+            cellChoiceBoxSetting.setDisable(true);
+            return false;
+        }
         var availableCells = StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(
                         selectedSheet.getRow(0).cellIterator(), Spliterator.ORDERED), false)
@@ -154,14 +184,14 @@ public class ExcelComparisonToolController {
         cellChoiceBoxSetting.setItems(FXCollections.observableList(availableCells));
         cellChoiceBoxSetting.setConverter(ExcelDesktopUtils.CHOICE_BOX_CELL_CONVERTER);
         cellChoiceBoxSetting.setDisable(false);
+        return true;
     }
 
     private void sheetV2Selected() {
         Sheet selectedItem = workBookAvailableSheetsVersion2.getSelectionModel().getSelectedItem();
-        if (Objects.nonNull(selectedItem)) {
+        if (Objects.nonNull(selectedItem) && updateSettingsAfterSelectedSheet(selectedItem, columnNameToCompareV2)) {
             isFirstLineHeaderVersion2.getToggles().stream().map(item -> (RadioButton) item)
                     .forEach(item -> item.setDisable(false));
-            updateSettingsAfterSelectedSheet(selectedItem, columnNameToCompareV2);
         }
     }
 
@@ -185,56 +215,40 @@ public class ExcelComparisonToolController {
                     columnNameToCompareV1, columnNameToCompareV2,
                     reportDirectory
             );
-            FileNameRowTitleProvider titleProvider = new FileNameRowTitleProvider(
-                    ExcelUtils.getFileNameWitOutExtension(workbookFileVersion1),
-                    ExcelUtils.getFileNameWitOutExtension(workbookFileVersion2));
 
-            Sheet selectedSheetVersion1 = workBookAvailableSheetsVersion1.getSelectionModel().getSelectedItem();
-            Sheet selectedSheetVersion2 = workBookAvailableSheetsVersion2.getSelectionModel().getSelectedItem();
+            GenerateReportTask reportTask = new GenerateReportTask(workbookFileVersion1, workbookFileVersion2,
+                    workBookAvailableSheetsVersion1, workBookAvailableSheetsVersion2, isFirstLineHeaderVersion1, columnNameToCompareV1, columnNameToCompareV2, reportDirectory);
+            rootElement.setDisable(true);
+            progressIndicator.visibleProperty().bind(reportTask.runningProperty());
 
-            CellProviderFactory cellProviderFactory = getCellProviderFactory(titleProvider, selectedSheetVersion1, selectedSheetVersion2);
-            RowProvider rowProvider = getCellProvider(selectedSheetVersion1, selectedSheetVersion2, cellProviderFactory);
-            ExcelService.CompareReport report = excelService.compareExcelSheets(rowProvider);
-            if (report.getNumberOfCellWithDifferences() > 0) {
-                ExcelDesktopUtils.saveReport(reportDirectory, report);
-                JFXUtils.createAlert(Alert.AlertType.CONFIRMATION,
-                                "Report was generated successfully",
-                                "alert-success")
-                        .show();
-            } else {
-                JFXUtils.createAlert(Alert.AlertType.WARNING,
-                                "Differences between sheets not found",
-                                "alert-warning")
-                        .show();
-            }
+            reportTask.setOnSucceeded(event -> {
+                ExcelService.CompareReport report = reportTask.getValue();
+                if (report.getNumberOfCellWithDifferences() > 0) {
+                    ExcelDesktopUtils.saveReport(reportDirectory, report);
+                    JFXUtils.createAlert(Alert.AlertType.CONFIRMATION,
+                                    "Report was generated successfully. The report was stored here: "
+                                            + reportDirectory.getAbsolutePath(),
+                                    "alert-success")
+                            .show();
+                } else {
+                    JFXUtils.createAlert(Alert.AlertType.WARNING,
+                                    "Differences between sheets not found",
+                                    "alert-warning")
+                            .show();
+                }
+                rootElement.setDisable(false);
+            });
+            reportTask.setOnFailed(workerStateEvent -> {
+                throw new SaveReportException("Unable to create a report.");
+            });
+            new Thread(reportTask).start();
         } catch (Exception exception) {
             JFXUtils.createAlert(Alert.AlertType.ERROR,
                             "Unable to create a report. Root cause: " + exception.getMessage(),
                             "alert-warning")
                     .show();
+            rootElement.setDisable(false);
         }
-    }
-
-    private RowProvider getCellProvider(Sheet selectedSheetVersion1, Sheet selectedSheetVersion2, CellProviderFactory cellProviderFactory) {
-        CellChoiceBoxModel selectedCellItemV1 = columnNameToCompareV1.getSelectionModel().getSelectedItem();
-        CellChoiceBoxModel selectedCellItemV2 = columnNameToCompareV2.getSelectionModel().getSelectedItem();
-        if (selectedCellItemV1.isDefaultValue()) {
-            return new SequentRowProvider(selectedSheetVersion1, selectedSheetVersion2, cellProviderFactory);
-        }
-        return new KeyColumnRowProvider(
-                selectedSheetVersion1, selectedCellItemV1.getCellIndex(),
-                selectedSheetVersion2, selectedCellItemV2.getCellIndex(),
-                cellProviderFactory);
-    }
-
-    private CellProviderFactory getCellProviderFactory(FileNameRowTitleProvider titleProvider, Sheet selectedSheetVersion1, Sheet selectedSheetVersion2) {
-        RadioButton isFirstLineHeaderValue = (RadioButton) isFirstLineHeaderVersion1.getSelectedToggle();
-        if ("YES".equalsIgnoreCase(isFirstLineHeaderValue.getText())) {
-            return new HeaderCellProviderFactory(
-                    Pair.create(selectedSheetVersion1.getRow(0), selectedSheetVersion2.getRow(0)),
-                    titleProvider);
-        }
-        return new SequentCellProviderFactory(titleProvider);
     }
 
 }

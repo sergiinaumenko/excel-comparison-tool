@@ -12,9 +12,11 @@ module ua.kh.excel.comparison.desktop {
     opens ua.kh.excel.comparison.desktop.controller to javafx.fxml;
     opens ua.kh.excel.comparison.desktop.utils to javafx.fxml;
     opens ua.kh.excel.comparison.desktop.exception to javafx.fxml;
+    opens ua.kh.excel.comparison.desktop.task to javafx.fxml;
 
     exports ua.kh.excel.comparison.desktop;
     exports ua.kh.excel.comparison.desktop.controller;
     exports ua.kh.excel.comparison.desktop.utils;
     exports ua.kh.excel.comparison.desktop.exception;
+    exports ua.kh.excel.comparison.desktop.task;
 }

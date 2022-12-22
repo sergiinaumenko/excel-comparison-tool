@@ -10,4 +10,8 @@ public class SaveReportException extends RuntimeException {
         super(ex);
     }
 
+    public SaveReportException(String message) {
+        super(message);
+    }
+
 }

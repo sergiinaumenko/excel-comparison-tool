@@ -13,8 +13,16 @@ After that, we can build JFX image:
 mvn clean compile javafx:jlink
 
 In order to create executable install file, next command has to be executed:
-jpackage --type msi --app-version 1.0 --description "test jfx" --name JFXDemo --dest d:\work\JavaFX_Result --vendor Rezvan --runtime-image d:\work\JavaFX\target\JFX_Demo
+jpackage --type msi --app-version 1.0 --description "ExcelComparisonTool is a desktop tool for generating comparison report between two Excel spreadsheet." --name ExcelComparisonTool --dest d:\work\ExcelComparatorTool --vendor Riezvan_Naumenko --runtime-image d:\excel-comparison-tool\desktop-excel-comparison-tool\target\ExcelComparisonTool
 
+Where:
+--type - type of created installation file. It can be exe or msi or pkg. You can create installation file only applicable for your type of OS.
+--app-version - version of tool
+--description - short description
+--name - name of created tool
+--dest - path to folder to store installation file
+--vendor - short name of vendor
+--runtime-image - path to the built JFX image. 
 
 P.S. How to create a modularized jar:
 1. Generate module-info.java. moduled is a folder 
