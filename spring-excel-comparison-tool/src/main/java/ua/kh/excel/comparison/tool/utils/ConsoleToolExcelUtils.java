@@ -39,10 +39,7 @@ public class ConsoleToolExcelUtils {
         return true;
     }
 
-    public static String getFileNameWitOutExtension(File file) {
-        String fileName = file.getName();
-        return fileName.substring(0, fileName.lastIndexOf('.'));
-    }
+
 
     public static List<File> findExcelFiles(ConsoleHelper consoleHelper, File directory) {
         if (!ConsoleToolExcelUtils.validateInputDirectory(consoleHelper, directory)) {

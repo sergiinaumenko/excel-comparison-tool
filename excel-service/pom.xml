@@ -12,10 +12,6 @@
     <name>excel-service</name>
     <artifactId>excel-service</artifactId>
 
-    <properties>
-
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>
