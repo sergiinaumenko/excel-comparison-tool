@@ -32,10 +32,8 @@ import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 @UtilityClass
 public class ExcelUtils {
 
-    private static final List<String> EXCEL_EXTENSION = List.of(".xlsx", ".xls");
-
     public static final String DEFAULT_REPORT_EXTENSION = ".xlsx";
-
+    private static final List<String> EXCEL_EXTENSION = List.of(".xlsx", ".xls");
     private static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
     public Workbook determineExcelWorkBookRepresentation(File file) {
@@ -119,4 +117,10 @@ public class ExcelUtils {
         }
         return false;
     }
+
+    public static String getFileNameWitOutExtension(File file) {
+        String fileName = file.getName();
+        return fileName.substring(0, fileName.lastIndexOf('.'));
+    }
+
 }
